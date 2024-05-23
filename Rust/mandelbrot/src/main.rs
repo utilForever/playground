@@ -56,12 +56,22 @@ fn parse_complex(s: &str) -> Option<Complex<f64>> {
 /// The `upper_left` and `lower_right` parameters are points on the complex plane
 /// designating the area our image covers.
 fn pixel_to_point(
-    _bounds: (usize, usize),
-    _pixel: (usize, usize),
-    _upper_left: Complex<f64>,
-    _lower_right: Complex<f64>,
+    bounds: (usize, usize),
+    pixel: (usize, usize),
+    upper_left: Complex<f64>,
+    lower_right: Complex<f64>,
 ) -> Complex<f64> {
-    todo!()
+    let (width, height) = (
+        lower_right.re - upper_left.re,
+        upper_left.im - lower_right.im,
+    );
+
+    // Why subtraction here? pixel.1 increases as we go down,
+    // but the imaginary component increases as we go up.
+    Complex {
+        re: upper_left.re + pixel.0 as f64 * width / bounds.0 as f64,
+        im: upper_left.im - pixel.1 as f64 * height / bounds.1 as f64,
+    }
 }
 
 /// Render a rectangle of the Mandelbrot set into a buffer of pixels.
