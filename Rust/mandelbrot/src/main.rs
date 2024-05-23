@@ -44,8 +44,8 @@ fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
 }
 
 /// Parse a pair of floating-point numbers separated by a comma as a complex number.
-fn parse_complex(_s: &str) -> Option<Complex<f64>> {
-    todo!()
+fn parse_complex(s: &str) -> Option<Complex<f64>> {
+    parse_pair(s, ',').map(|(re, im)| Complex { re, im })
 }
 
 /// Given the row and column of a pixel in the output image,
