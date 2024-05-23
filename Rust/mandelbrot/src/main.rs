@@ -33,8 +33,14 @@ fn escape_time(c: Complex<f64>, limit: usize) -> Option<usize> {
 ///
 /// If `s` has the proper form, return `Some<(x, y)>`.
 /// If it doesn't parse correctly, return `None`.
-fn parse_pair<T: FromStr>(_s: &str, _separator: char) -> Option<(T, T)> {
-    todo!()
+fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
+    match s.find(separator) {
+        Some(index) => match (T::from_str(&s[..index]), T::from_str(&s[index + 1..])) {
+            (Ok(left), Ok(right)) => Some((left, right)),
+            _ => None,
+        },
+        None => None,
+    }
 }
 
 /// Parse a pair of floating-point numbers separated by a comma as a complex number.
