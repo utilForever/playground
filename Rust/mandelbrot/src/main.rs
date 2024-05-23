@@ -11,8 +11,18 @@ use std::str::FromStr;
 /// on the origin. If `c` seems to be a member (more precisely,
 /// if we reached the iteration limit without being able to prove that
 /// `c` is not a member), return `None`.
-fn escape_time(_c: Complex<f64>, _limit: usize) -> Option<usize> {
-    todo!()
+fn escape_time(c: Complex<f64>, limit: usize) -> Option<usize> {
+    let mut z = Complex { re: 0.0, im: 0.0 };
+
+    for i in 0..limit {
+        if z.norm_sqr() > 4.0 {
+            return Some(i);
+        }
+
+        z = z * z + c;
+    }
+
+    None
 }
 
 /// Parse the string `s` as a coordinate pair, like `"400x600"` or `"1.0,0.5"`.
