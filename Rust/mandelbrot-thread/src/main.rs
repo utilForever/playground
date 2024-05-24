@@ -5,6 +5,7 @@ use num::Complex;
 use std::env;
 use std::fs::File;
 use std::str::FromStr;
+use std::thread;
 
 /// Try to determine if `c` is in the Mandelbrot set,
 /// using at most `limit` iterations to decide.
@@ -138,7 +139,36 @@ fn main() {
 
     let mut pixels = vec![0; bounds.0 * bounds.1];
 
-    render(&mut pixels, bounds, upper_left, lower_right);
+    // Scope of slicing up `pixels` into horizontal bands.
+    {
+        let bands = pixels.chunks_mut(bounds.0).enumerate().collect::<Vec<_>>();
+        let mut handles = Vec::new();
+
+        for (i, band) in bands.into_iter() {
+            let top = i;
+            let band_bounds = (bounds.0, 1);
+            let band_upper_left = pixel_to_point(bounds, (0, top), upper_left, lower_right);
+            let band_lower_right =
+                pixel_to_point(bounds, (bounds.0, top + 1), upper_left, lower_right);
+
+            // Clone necessary data for the thread
+            let mut band = band.to_owned();
+            let handle = thread::spawn(move || {
+                render(&mut band, band_bounds, band_upper_left, band_lower_right);
+                band
+            });
+
+            handles.push(handle);
+        }
+
+        for (i, handle) in handles.into_iter().enumerate() {
+            let band = handle.join().expect("Thread panicked");
+            let start = i * bounds.0;
+            let end = start + bounds.0;
+
+            pixels[start..end].copy_from_slice(&band);
+        }
+    }
 
     write_image(&args[1], &pixels, bounds);
 }
