@@ -5,6 +5,8 @@ use num::Complex;
 use std::env;
 use std::fs::File;
 use std::str::FromStr;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering::*;
 
 /// Try to determine if `c` is in the Mandelbrot set,
 /// using at most `limit` iterations to decide.
@@ -117,6 +119,55 @@ fn write_image(filename: &str, pixels: &[u8], bounds: (usize, usize)) {
             ExtendedColorType::L8,
         )
         .expect("Error writing PNG file");
+}
+
+pub struct AtomicChunksMut<'a, T> {
+    slice: &'a [T],
+    step: usize,
+    next: AtomicUsize,
+}
+
+impl<'a, T> AtomicChunksMut<'a, T> {
+    pub fn new(slice: &'a mut [T], step: usize) -> AtomicChunksMut<'a, T> {
+        AtomicChunksMut {
+            slice,
+            step,
+            next: AtomicUsize::new(0),
+        }
+    }
+
+    #[allow(mutable_transmutes)]
+    unsafe fn next(&self) -> Option<(usize, &'a mut [T])> {
+        loop {
+            let current = self.next.load(SeqCst);
+
+            assert!(current <= self.slice.len());
+
+            if current == self.slice.len() {
+                return None;
+            }
+
+            let end = std::cmp::min(current + self.step, self.slice.len());
+
+            if self
+                .next
+                .compare_exchange(current, end, SeqCst, SeqCst)
+                .is_ok()
+            {
+                return Some((
+                    current / self.step,
+                    std::mem::transmute(&self.slice[current..end]),
+                ));
+            }
+        }
+    }
+}
+
+impl<'a, 'b, T> Iterator for &'b AtomicChunksMut<'a, T> {
+    type Item = (usize, &'a mut [T]);
+    fn next(&mut self) -> Option<Self::Item> {
+        unsafe { (*self).next() }
+    }
 }
 
 fn main() {
