@@ -13,7 +13,7 @@ jobs:
     name: 🗊 Formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -31,7 +31,7 @@ jobs:
     name: 🚨 Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -47,7 +47,7 @@ jobs:
     name: ✅ Test Suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -67,7 +67,7 @@ jobs:
     name: 👮 Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Cache cargo bin
         uses: actions/cache@v1
         with:
