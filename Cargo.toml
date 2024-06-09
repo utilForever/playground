@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "Rust/mandelbrot",
+    "Rust/mandelbrot-thread",
+    "Rust/mandelbrot-rayon",
+    "Rust/mandelbrot-lockfree",
+]
+resolver = "2"
