@@ -50,18 +50,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
           override: true
-      - uses: Swatinem/rust-cache@v1
-      - name: Install cargo-nextest
-        uses: baptiste0928/cargo-install@v1
-        with:
-          crate: cargo-nextest
-          locked: true
       - uses: actions-rs/cargo@v1
         with:
-          command: nextest
-          args: run --retries 5 --workspace --failure-output final
+          command: test --workspace
 
   security_audit:
     name: 👮 Audit
