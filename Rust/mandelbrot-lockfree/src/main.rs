@@ -216,7 +216,7 @@ fn main() {
                 });
             }
         })
-            .expect("Error rendering image");
+        .expect("Error rendering image");
     }
 
     write_image(&args[1], &pixels, bounds);
